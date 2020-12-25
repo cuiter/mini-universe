@@ -1,0 +1,10 @@
+[package]
+name = "universe"
+version = "0.1.0"
+authors = ["cuiter <casper.uiterwijk@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+sdl2 = "0.34"
+time = "0.1"
+rand = "0.7"

@@ -44,7 +44,7 @@ pub fn draw_world(canvas: &mut Canvas<Window>, assets: &mut Assets, view: &View,
                 continue;
             }
 
-            let density = world.plant_grid.get_density(Vec2i::new(col as i32, row as i32));
+            let density = world.plant_grid.get_density_unchecked(Vec2i::new(col as i32, row as i32));
             if density == 0 {
                 continue;
             }

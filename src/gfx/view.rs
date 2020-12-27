@@ -2,17 +2,20 @@ use crate::util::{Size2i, Vec2f};
 use std::collections::HashMap;
 use sdl2::keyboard::Scancode;
 
-const DEFAULT_ZOOM: f32 = 20.0;
-const ZOOM_CHANGE_FACTOR: f32 = 1.2;
 const POS_MOVE_FACTOR: f32 = 500.0; // Pixels per second
+const DEFAULT_ZOOM: f32 = 20.0;
+const ZOOM_CHANGE_FACTOR: f32 = 1.2; // Exponential
+const TIME_FACTOR_CHANGE_FACTOR: f32 = 2.0; // Exponential
 
 #[derive(Clone)]
 pub struct View {
     pub window_size: Size2i,
     pub pos: Vec2f,
     pub zoom: f32,
+    pub time_factor: f32,
     pub paused: bool,
-    keys: HashMap<Scancode, bool>
+    keys: HashMap<Scancode, bool>,
+    prev_keys: HashMap<Scancode, bool>
 }
 
 impl View {
@@ -22,7 +25,9 @@ impl View {
             pos,
             zoom: DEFAULT_ZOOM, // Pixels per plant cell
             paused: false,
-            keys: HashMap::new()
+            time_factor: 1.0,
+            keys: HashMap::new(),
+            prev_keys: HashMap::new()
         }
     }
 
@@ -45,6 +50,16 @@ impl View {
     fn get_key(&self, key: Scancode) -> bool {
         *self.keys.get(&key).unwrap_or(&false)
     }
+    fn get_prev_key(&self, key: Scancode) -> bool {
+        *self.prev_keys.get(&key).unwrap_or(&false)
+    }
+
+    pub fn get_key_down(&self, key: Scancode) -> bool {
+        !self.get_prev_key(key) && self.get_key(key)
+    }
+    pub fn get_key_up(&self, key: Scancode) -> bool {
+        self.get_prev_key(key) && !self.get_key(key)
+    }
 
     pub fn tick(&mut self, d_time: f32) {
         // Move view position based on keyboard input.
@@ -62,5 +77,20 @@ impl View {
             pos_diff.x += 1.0;
         }
         self.pos += (pos_diff * POS_MOVE_FACTOR * d_time) / self.zoom;
+
+        // Adjust time parameters based on keyboard input.
+        if self.get_key_down(Scancode::Space) {
+            self.paused = !self.paused;
+        }
+        if self.get_key_down(Scancode::Comma) {
+            self.time_factor /= TIME_FACTOR_CHANGE_FACTOR;
+            println!("new time factor: {}", self.time_factor);
+        }
+        if self.get_key_down(Scancode::Period) {
+            self.time_factor *= TIME_FACTOR_CHANGE_FACTOR;
+            println!("new time factor: {}", self.time_factor);
+        }
+
+        self.prev_keys = self.keys.clone();
     }
 }

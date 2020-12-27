@@ -71,7 +71,9 @@ pub fn main_loop() {
         let d_time: f32 = if raw_d_time == 0f32 { 1e-9f32 } else { raw_d_time }; // to prevent divide by zero
 
         view.tick(d_time);
-        world.tick(d_time);
+        if !view.paused {
+            world.tick(d_time * view.time_factor);
+        }
         prev_nano_time = cur_nano_time;
 
         draw_world(&mut canvas, &mut assets, &view, &world);

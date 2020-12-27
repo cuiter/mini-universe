@@ -1,2 +1,3 @@
 pub mod window;
-pub mod view;
+mod view;
+mod world;

@@ -2,11 +2,12 @@ use sdl2::{
     render::Canvas,
     video::Window,
     pixels::Color,
-    rect::Rect
+    rect::{Point, Rect}
 };
 use crate::world::World;
 use crate::gfx::view::View;
-use crate::util::{Vec2f, Vec2i, Rect2i, Rect2f, vec2f_to_vec2i, rect2f_to_rect2i, rect2i_collides};
+use crate::gfx::assets::Assets;
+use crate::util::{Vec2f, Vec2i, Rect2i, Rect2f, vec2f_to_vec2i, rect2i_collides};
 
 const PLANT_COLOR: Color = Color::RGBA(96, 255, 32, 255);
 const AGENT_COLOR: Color = Color::RGBA(20, 20, 200, 255);
@@ -20,14 +21,14 @@ fn world_to_window_pos(view: &View, pos: Vec2f) -> Vec2f {
                view.window_size.h as f32 / 2.0 - centered_pos.y)
 }
 
-fn world_to_window_rect(view: &View, rect: Rect2f) -> Rect2f {
-    let bottom_left = world_to_window_pos(view, Vec2f::new(rect.x, rect.y));
-    let top_right = world_to_window_pos(view, Vec2f::new(rect.x + rect.w, rect.y + rect.h));
+fn world_to_window_rect(view: &View, rect: Rect2f) -> Rect2i {
+    let bottom_left = vec2f_to_vec2i(world_to_window_pos(view, Vec2f::new(rect.x, rect.y)));
+    let top_right = vec2f_to_vec2i(world_to_window_pos(view, Vec2f::new(rect.x + rect.w, rect.y + rect.h)));
 
-    Rect2f::new(bottom_left.x, top_right.y, top_right.x - bottom_left.x, bottom_left.y - top_right.y)
+    Rect2i::new(bottom_left.x, top_right.y, (top_right.x - bottom_left.x) as u32, (bottom_left.y - top_right.y) as u32)
 }
 
-pub fn draw_world(canvas: &mut Canvas<Window>, view: &View, world: &World) {
+pub fn draw_world(canvas: &mut Canvas<Window>, assets: &mut Assets, view: &View, world: &World) {
     canvas.set_draw_color(BACKGROUND_COLOR);
     canvas.clear();
 
@@ -37,7 +38,7 @@ pub fn draw_world(canvas: &mut Canvas<Window>, view: &View, world: &World) {
     // Draw plant grid.
     for row in 0..world.plant_grid.size.h {
         for col in 0..world.plant_grid.size.w {
-            let draw_rect = rect2f_to_rect2i(world_to_window_rect(view, Rect2f::new(col as f32, row as f32, 1.0, 1.0)));
+            let draw_rect = world_to_window_rect(view, Rect2f::new(col as f32, row as f32, 1.0, 1.0));
             if !rect2i_collides(draw_rect, window_rect) {
                 // Plant cell is not on screen.
                 continue;
@@ -61,14 +62,16 @@ pub fn draw_world(canvas: &mut Canvas<Window>, view: &View, world: &World) {
     }
 
     // Draw agents.
-    canvas.set_draw_color(AGENT_COLOR);
+    assets.agent_sprite.set_color_mod(AGENT_COLOR.r, AGENT_COLOR.g, AGENT_COLOR.b);
     for agent in world.agents.iter() {
-        let draw_rect = rect2f_to_rect2i(world_to_window_rect(view, agent.get_bounding_rect()));
+        let draw_rect = world_to_window_rect(view, agent.get_bounding_rect());
         if !rect2i_collides(draw_rect, window_rect) {
             // Agent is not on screen.
             continue;
         }
+
+        canvas.copy_ex(&assets.agent_sprite, None, Rect::new(draw_rect.x, draw_rect.y, draw_rect.w, draw_rect.h), agent.angle.to_degrees() as f64, Point::new(draw_rect.w as i32 / 2, draw_rect.h as i32 / 2), false, false).unwrap();
+        canvas.copy_ex(&assets.agent_eyes_sprite, None, Rect::new(draw_rect.x, draw_rect.y, draw_rect.w, draw_rect.h), agent.angle.to_degrees() as f64, Point::new(draw_rect.w as i32 / 2, draw_rect.h as i32 / 2), false, false).unwrap();
         // TODO: draw circle instead of rect
-        canvas.fill_rect(Rect::new(draw_rect.x, draw_rect.y, draw_rect.w, draw_rect.h)).unwrap();
     }
 }

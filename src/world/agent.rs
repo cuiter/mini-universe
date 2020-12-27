@@ -1,4 +1,4 @@
-use crate::util::{Vec2f, Size2f, Rect2f};
+use crate::util::{Vec2f, Rect2f};
 
 const DEFAULT_RADIUS: f32 = 4.0;
 
@@ -27,5 +27,7 @@ impl Agent {
     pub fn tick(&mut self, d_time: f32) {
         // TODO: implement movement and energy code
         self.pos.x += d_time;
+        self.pos.y += d_time * 3.0;
+        self.angle += d_time;
     }
 }

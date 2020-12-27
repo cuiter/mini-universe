@@ -14,8 +14,6 @@ pub fn vec2f_to_vec2i(pos: Vec2f) -> Vec2i {
 
 #[inline]
 pub fn rect2f_to_rect2i(rect: Rect2f) -> Rect2i {
-    let bottom_left = vec2f_to_vec2i(Vec2f::new(rect.x, rect.y));
-    let top_right = vec2f_to_vec2i(Vec2f::new(rect.x + rect.w, rect.y + rect.h));
     Rect2i::new(rect.x as i32, rect.y as i32, rect.w.ceil() as u32, rect.h.ceil() as u32)
 }
 

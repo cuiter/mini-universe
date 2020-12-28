@@ -1,6 +1,5 @@
-use crate::util::{Size2i, Vec2i};
-use rand::{Rng, SeedableRng};
-use rand_pcg::Pcg32;
+use crate::util::{WRng, Size2i, Vec2i};
+use rand::Rng;
 
 const GENERATE_DENSITY_THRESHOLD: f32 = 0.999;
 const GENERATE_REGENERATE: u32 = 100;
@@ -12,16 +11,14 @@ const REGENERATE_INCREMENT_MAX: f32 = 3.0;
 pub struct PlantGrid {
     pub densities: Vec<u8>,
     pub size: Size2i,
-    rng: Pcg32,
     time_since_regenerate: f32
 }
 
 impl PlantGrid {
-    pub fn new(size: Size2i, random_seed: u64) -> PlantGrid {
+    pub fn new(size: Size2i) -> PlantGrid {
         PlantGrid {
             densities: vec![0u8; size.w as usize * size.h as usize],
             size,
-            rng: Pcg32::seed_from_u64(random_seed),
             time_since_regenerate: 0.0
         }
     }
@@ -45,10 +42,10 @@ impl PlantGrid {
         self.densities[pos.y as usize * self.size.w as usize + pos.x as usize] = density;
     }
 
-    pub fn generate(&mut self) {
+    pub fn generate(&mut self, rng: &mut WRng) {
         for row in 0..self.size.h {
             for col in 0..self.size.w {
-                let random_value = self.rng.gen::<f32>();
+                let random_value = rng.gen::<f32>();
                 if random_value > GENERATE_DENSITY_THRESHOLD {
                     let new_density = (((random_value - GENERATE_DENSITY_THRESHOLD) / (1.0 - GENERATE_DENSITY_THRESHOLD)) * 255.0) as u8;
                     self.set_density(Vec2i::new(row as i32, col as i32), new_density);
@@ -56,20 +53,20 @@ impl PlantGrid {
             }
         }
 
-        for i in 0..GENERATE_REGENERATE {
-            self.regenerate();
+        for _ in 0..GENERATE_REGENERATE {
+            self.regenerate(rng);
         }
     }
 
-    pub fn tick(&mut self, d_time: f32) {
+    pub fn tick(&mut self, d_time: f32, rng: &mut WRng) {
         self.time_since_regenerate += d_time;
         while self.time_since_regenerate > REGENERATE_INTERVAL {
-            self.regenerate();
+            self.regenerate(rng);
             self.time_since_regenerate -= REGENERATE_INTERVAL;
         }
     }
 
-    fn regenerate(&mut self) {
+    fn regenerate(&mut self, rng: &mut WRng) {
         for row in 0..self.size.h {
             for col in 0..self.size.w {
                 let mut neighbor_total = 0.0f32;
@@ -85,7 +82,7 @@ impl PlantGrid {
                 let pos = Vec2i::new(col as i32, row as i32);
                 if neighbor_total > REGENERATE_NEIGHBOR_THRESHOLD {
                     let mut new_density = self.get_density(pos) as f32;
-                    new_density += REGENERATE_INCREMENT_MAX * self.rng.gen::<f32>();
+                    new_density += REGENERATE_INCREMENT_MAX * rng.gen::<f32>();
                     if new_density > 255.0 {
                         new_density = 255.0;
                     }

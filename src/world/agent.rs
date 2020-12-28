@@ -84,7 +84,6 @@ impl Agent {
     }
 
     pub fn tick(&mut self, plant_grid: &PlantGrid, d_time: f32) -> bool {
-        let actuators = Actuators { commands: [0.8, 1.0] };
         let sensors = self.measure_sensors(plant_grid);
         let actuators = self.calculate_actuators(&sensors);
         self.apply_actuators(&actuators, plant_grid, d_time);

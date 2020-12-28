@@ -47,11 +47,11 @@ impl View {
             },
             Scancode::Comma => {
                 self.time_factor /= TIME_FACTOR_CHANGE_FACTOR;
-                println!("new time factor: {}", self.time_factor);
+                println!("time factor: {}", self.time_factor);
             },
             Scancode::Period => {
                 self.time_factor *= TIME_FACTOR_CHANGE_FACTOR;
-                println!("new time factor: {}", self.time_factor);
+                println!("time factor: {}", self.time_factor);
             },
             _ => { }
         }

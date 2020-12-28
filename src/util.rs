@@ -3,6 +3,7 @@ use rand_pcg;
 
 pub type Vec2f = vek::Vec2<f32>;
 pub type Vec2i = vek::Vec2<i32>;
+pub type Vec3f = vek::Vec3<f32>;
 pub type Size2f = vek::Extent2<f32>;
 pub type Size2i = vek::Extent2<u32>;
 pub type Rect2f = vek::Rect<f32, f32>;

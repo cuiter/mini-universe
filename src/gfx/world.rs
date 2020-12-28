@@ -9,9 +9,11 @@ use crate::gfx::view::View;
 use crate::gfx::assets::Assets;
 use crate::util::{Vec2f, Vec2i, Rect2i, Rect2f, vec2f_to_vec2i, rect2i_collides};
 
+const BACKGROUND_COLOR: Color = Color::RGBA(0, 0, 0, 255);
 const PLANT_COLOR: Color = Color::RGBA(96, 255, 32, 255);
 const AGENT_COLOR: Color = Color::RGBA(20, 20, 200, 255);
-const BACKGROUND_COLOR: Color = Color::RGBA(0, 0, 0, 255);
+const AGENT_MEASURE_COLOR: Color = Color::RGBA(100, 100, 255, 200);
+const AGENT_MEASURE_SIZE: f32 = 0.25;
 
 fn world_to_window_pos(view: &View, pos: Vec2f) -> Vec2f {
     let centered_pos = (pos - view.pos) * view.zoom;
@@ -63,6 +65,7 @@ pub fn draw_world(canvas: &mut Canvas<Window>, assets: &mut Assets, view: &View,
 
     // Draw agents.
     assets.agent_sprite.set_color_mod(AGENT_COLOR.r, AGENT_COLOR.g, AGENT_COLOR.b);
+    canvas.set_draw_color(AGENT_MEASURE_COLOR);
     for agent in world.agents.iter() {
         let draw_rect = world_to_window_rect(view, agent.get_bounding_rect());
         if !rect2i_collides(draw_rect, window_rect) {
@@ -70,8 +73,16 @@ pub fn draw_world(canvas: &mut Canvas<Window>, assets: &mut Assets, view: &View,
             continue;
         }
 
-        canvas.copy_ex(&assets.agent_sprite, None, Rect::new(draw_rect.x, draw_rect.y, draw_rect.w, draw_rect.h), agent.angle.to_degrees() as f64, Point::new(draw_rect.w as i32 / 2, draw_rect.h as i32 / 2), false, false).unwrap();
-        canvas.copy_ex(&assets.agent_eyes_sprite, None, Rect::new(draw_rect.x, draw_rect.y, draw_rect.w, draw_rect.h), agent.angle.to_degrees() as f64, Point::new(draw_rect.w as i32 / 2, draw_rect.h as i32 / 2), false, false).unwrap();
-        // TODO: draw circle instead of rect
+        // Draw agent
+        canvas.copy_ex(&assets.agent_sprite, None, Rect::new(draw_rect.x, draw_rect.y, draw_rect.w, draw_rect.h), -agent.angle.to_degrees() as f64, Point::new(draw_rect.w as i32 / 2, draw_rect.h as i32 / 2), false, false).unwrap();
+        canvas.copy_ex(&assets.agent_eyes_sprite, None, Rect::new(draw_rect.x, draw_rect.y, draw_rect.w, draw_rect.h), -agent.angle.to_degrees() as f64, Point::new(draw_rect.w as i32 / 2, draw_rect.h as i32 / 2), false, false).unwrap();
+
+        // Draw measurement points.
+        let left_measure_pos = agent.get_left_measure_pos();
+        let right_measure_pos = agent.get_right_measure_pos();
+        let left_measure_rect = world_to_window_rect(view, Rect2f::new(left_measure_pos.x - AGENT_MEASURE_SIZE / 2.0, left_measure_pos.y - AGENT_MEASURE_SIZE / 2.0, AGENT_MEASURE_SIZE, AGENT_MEASURE_SIZE));
+        let right_measure_rect = world_to_window_rect(view, Rect2f::new(right_measure_pos.x - AGENT_MEASURE_SIZE / 2.0, right_measure_pos.y - AGENT_MEASURE_SIZE / 2.0, AGENT_MEASURE_SIZE, AGENT_MEASURE_SIZE));
+        canvas.fill_rect(Rect::new(left_measure_rect.x, left_measure_rect.y, left_measure_rect.w, left_measure_rect.h)).unwrap();
+        canvas.fill_rect(Rect::new(right_measure_rect.x, right_measure_rect.y, right_measure_rect.w, right_measure_rect.h)).unwrap();
     }
 }

@@ -4,7 +4,7 @@ use rand_pcg::Pcg32;
 
 const GENERATE_DENSITY_THRESHOLD: f32 = 0.999;
 const GENERATE_REGENERATE: u32 = 100;
-const REGENERATE_INTERVAL: f32 = 1.0;
+const REGENERATE_INTERVAL: f32 = 100.0;
 const REGENERATE_NEIGHBOR_THRESHOLD: f32 = 100.0;
 const REGENERATE_INCREMENT_MAX: f32 = 3.0;
 
@@ -41,7 +41,7 @@ impl PlantGrid {
     }
 
     #[inline]
-    fn set_density(&mut self, pos: Vec2i, density: u8) {
+    pub fn set_density(&mut self, pos: Vec2i, density: u8) {
         self.densities[pos.y as usize * self.size.w as usize + pos.x as usize] = density;
     }
 

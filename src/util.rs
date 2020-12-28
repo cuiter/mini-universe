@@ -22,3 +22,7 @@ pub fn rect2i_collides(rect_1: Rect2i, rect_2: Rect2i) -> bool {
     vek::Rect::new(rect_1.x, rect_1.y, rect_1.w as i32, rect_1.h as i32)
         .collides_with_rect(vek::Rect::new(rect_2.x, rect_2.y, rect_2.w as i32, rect_2.h as i32))
 }
+
+pub fn calculate_vec2f(speed: f32, angle: f32) -> Vec2f {
+    Vec2f::new(angle.cos() * speed, angle.sin() * speed)
+}

@@ -1,4 +1,5 @@
 use vek;
+use rand_pcg;
 
 pub type Vec2f = vek::Vec2<f32>;
 pub type Vec2i = vek::Vec2<i32>;
@@ -6,6 +7,7 @@ pub type Size2f = vek::Extent2<f32>;
 pub type Size2i = vek::Extent2<u32>;
 pub type Rect2f = vek::Rect<f32, f32>;
 pub type Rect2i = vek::Rect<i32, u32>;
+pub type WRng = rand_pcg::Pcg32;
 
 #[inline]
 pub fn vec2f_to_vec2i(pos: Vec2f) -> Vec2i {

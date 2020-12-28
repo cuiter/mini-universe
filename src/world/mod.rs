@@ -1,6 +1,7 @@
 pub mod agent;
 pub mod plant_grid;
 pub mod params;
+mod brain;
 
 pub use params::Params;
 
@@ -12,6 +13,7 @@ pub struct World {
     pub agents: Vec<agent::Agent>,
     pub plant_grid: plant_grid::PlantGrid,
     rng: WRng,
+    max_time_alive: f32,
 }
 
 impl World {
@@ -30,20 +32,49 @@ impl World {
 
         let mut plant_grid = plant_grid::PlantGrid::new(params.plant_grid_size);
         plant_grid.generate(&mut rng);
+        let mut agents = Vec::with_capacity(params.agent_count as usize);
+        for i in 0..params.agent_count {
+            agents.push(agent::Agent::new_random(&params, &mut rng));
+        }
         World {
-            agents: vec![agent::Agent::new(Vec2f::new(10.0, 10.0), 0.2)],
+            agents: agents,
             plant_grid,
-            rng
+            rng,
+            max_time_alive: 0.0
         }
     }
 
-    pub fn tick(&mut self, d_time: f32) {
+    pub fn tick(&mut self, params: &Params, d_time: f32) {
         self.plant_grid.tick(d_time, &mut self.rng);
 
-        for agent in self.agents.iter_mut() {
-            if agent.tick(&self.plant_grid, d_time) {
+        let mut idx = 0;
+        while idx < self.agents.len() {
+            let mut agent = &mut self.agents[idx];
+            let tick_result = agent.tick(&self.plant_grid, d_time);
+            if tick_result.eat {
                 self.plant_grid.set_density(vec2f_to_vec2i(agent.get_mouth_pos()), 0);
             }
+
+            if params.evolution {
+                if tick_result.die {
+                    if agent.time_alive > self.max_time_alive {
+                        println!("new time alive record: {}", agent.time_alive);
+                        self.max_time_alive = agent.time_alive;
+                    }
+
+                    self.agents.remove(idx);
+                    idx -= 1;
+
+                    if self.agents.len() < params.agent_count as usize {
+                        self.agents.push(agent::Agent::new_random(&params, &mut self.rng));
+                    }
+                } else if tick_result.reproduce {
+                    let new_agent = agent.reproduce(&mut self.rng);
+                    self.agents.push(new_agent);
+                }
+            }
+
+            idx += 1;
         }
     }
 }

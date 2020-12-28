@@ -84,7 +84,7 @@ pub fn main_loop(params: &Params) {
         left_sim_time += d_time * view.time_factor;
         if !view.paused {
             while left_sim_time > params.tick_interval {
-                world.tick(params.tick_interval);
+                world.tick(params, params.tick_interval);
                 left_sim_time -= params.tick_interval;
             }
         }

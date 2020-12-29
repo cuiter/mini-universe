@@ -4,6 +4,7 @@ use vek::ops::Clamp;
 
 pub const N_PERCEPTS: usize = 3;
 pub const N_COMMANDS: usize = 2;
+const MUTATION_FACTOR: f32 = 0.02;
 
 pub struct Brain {
     weights: [f32; N_PERCEPTS * N_COMMANDS]
@@ -12,8 +13,15 @@ pub struct Brain {
 impl Brain {
     pub fn new_random(rng: &mut WRng) -> Brain {
         let mut weights = [0.0; N_PERCEPTS * N_COMMANDS];
-        for i in 0..weights.len() {
-            weights[i] = rng.gen::<f32>() * 2.0 - 1.0;
+
+        for row in 0..N_PERCEPTS {
+            for col in 0..N_COMMANDS {
+                if row == 0 {
+                    weights[row * N_COMMANDS + col] = rng.gen::<f32>();
+                } else {
+                    weights[row * N_COMMANDS + col] = rng.gen::<f32>() * 2.0 - 1.0;
+                }
+            }
         }
 
         Brain {
@@ -22,8 +30,17 @@ impl Brain {
     }
 
     pub fn reproduce(&self, rng: &mut WRng) -> Brain {
+        let mut new_weights = self.weights.clone();
+        for row in 0..N_PERCEPTS {
+            for col in 0..N_COMMANDS {
+                let weight = new_weights[row * N_COMMANDS + col];
+                let new_weight = weight + (rng.gen::<f32>() * 2.0 - 1.0) * MUTATION_FACTOR;
+                let clamped_new_weight = if row == 0 { new_weight.clamped(0.0, 1.0) } else { new_weight.clamped(-1.0, 1.0) };
+                new_weights[row * N_COMMANDS + col] = clamped_new_weight;
+            }
+        }
         Brain {
-            weights: self.weights.clone()
+            weights: new_weights
         }
     }
 

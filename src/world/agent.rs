@@ -7,7 +7,7 @@ use rand::Rng;
 
 const DEFAULT_RADIUS: f32 = 2.0;
 const MAX_SPEED: f32 = 8.0;
-const MEASURE_DISTANCE: f32 = 4.0;
+const MEASURE_DISTANCE: f32 = 8.0;
 const MEASURE_ANGLE: f32 = 0.35;
 const MOUTH_DISTANCE: f32 = 2.0;
 

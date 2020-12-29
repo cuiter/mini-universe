@@ -38,7 +38,7 @@ pub struct TickResult {
 }
 
 struct Sensors {
-    pub percepts: [f32; N_PERCEPTS] // 0: constant one, 1: left eye, 2: right eye
+    pub percepts: [f32; N_PERCEPTS] // 0: constant one, 1: left eye, 2: right eye, 3: time (sinusoid)
 }
 
 struct Actuators {
@@ -94,7 +94,12 @@ impl Agent {
         let right_density = plant_grid.get_density(vec2f_to_vec2i(self.get_right_measure_pos()));
 
         Sensors {
-            percepts: [1.0, left_density as f32 / 255.0, right_density as f32 / 255.0]
+            percepts: [
+                1.0,
+                left_density as f32 / 255.0,
+                right_density as f32 / 255.0,
+                self.time_alive.sin() // TODO: Add gene for changing period
+            ]
         }
     }
 

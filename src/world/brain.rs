@@ -2,7 +2,7 @@ use crate::util::{WRng};
 use rand::Rng;
 use vek::ops::Clamp;
 
-pub const N_PERCEPTS: usize = 3;
+pub const N_PERCEPTS: usize = 4;
 pub const N_COMMANDS: usize = 2;
 const MUTATION_FACTOR: f32 = 0.02;
 

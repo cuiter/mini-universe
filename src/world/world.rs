@@ -1,7 +1,7 @@
+use crate::util::{vec2f_to_vec2i, WRng};
+use crate::world::{Agent, Params, PlantGrid};
+use rand::SeedableRng;
 use std::time::{SystemTime, UNIX_EPOCH};
-use crate::util::{WRng, Vec2f, vec2f_to_vec2i};
-use crate::world::{Params, Agent, PlantGrid};
-use rand::{Rng, SeedableRng};
 
 pub struct World {
     pub agents: Vec<Agent>,
@@ -15,11 +15,11 @@ pub struct World {
 impl World {
     pub fn new(params: &Params) -> World {
         let mut rng = match params.seed {
-            Some(seed) => {
-                WRng::seed_from_u64(seed)
-            },
+            Some(seed) => WRng::seed_from_u64(seed),
             None => {
-                let time_since_epoch = SystemTime::now().duration_since(UNIX_EPOCH).expect("Time went backwards");
+                let time_since_epoch = SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .expect("Time went backwards");
                 let seed = time_since_epoch.as_millis() as u64;
                 println!("using seed: {}", seed);
                 WRng::seed_from_u64(seed)
@@ -29,7 +29,7 @@ impl World {
         let mut plant_grid = PlantGrid::new(params.plant_grid_size);
         plant_grid.generate(&mut rng);
         let mut agents = Vec::with_capacity(params.agent_count as usize);
-        for i in 0..params.agent_count {
+        for _ in 0..params.agent_count {
             agents.push(Agent::new_random(&params, &mut rng));
         }
         World {
@@ -38,7 +38,7 @@ impl World {
             time: 0.0,
             rng,
             max_time_alive: 0.0,
-            max_generation: 1
+            max_generation: 1,
         }
     }
 
@@ -47,21 +47,28 @@ impl World {
 
         let mut idx = 0;
         while idx < self.agents.len() {
-            let mut agent = &mut self.agents[idx];
+            let agent = &mut self.agents[idx];
             let tick_result = agent.tick(&self.plant_grid, d_time);
             if tick_result.eat {
-                self.plant_grid.set_density(vec2f_to_vec2i(agent.get_mouth_pos()), 0);
+                self.plant_grid
+                    .set_density(vec2f_to_vec2i(agent.get_mouth_pos()), 0);
             }
 
             if params.evolution {
                 if tick_result.die {
                     if agent.time_alive > self.max_time_alive {
                         self.max_time_alive = agent.time_alive;
-                        println!("[{:.0}] new time alive record: {}", self.time, self.max_time_alive);
+                        println!(
+                            "[{:.0}] new time alive record: {}",
+                            self.time, self.max_time_alive
+                        );
                     }
                     if agent.generation > self.max_generation {
                         self.max_generation = agent.generation;
-                        println!("[{:.0}] new generation record: {}", self.time, self.max_generation);
+                        println!(
+                            "[{:.0}] new generation record: {}",
+                            self.time, self.max_generation
+                        );
                     }
 
                     self.agents.remove(idx);
@@ -82,4 +89,3 @@ impl World {
         self.time += d_time;
     }
 }
-

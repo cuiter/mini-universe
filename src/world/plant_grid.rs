@@ -1,4 +1,4 @@
-use crate::util::{WRng, Size2i, Vec2i};
+use crate::util::{Size2i, Vec2i, WRng};
 use rand::Rng;
 
 const GENERATE_DENSITY_THRESHOLD: f32 = 0.995;
@@ -11,7 +11,7 @@ const REGENERATE_INCREMENT_MAX: f32 = 3.0;
 pub struct PlantGrid {
     pub densities: Vec<u8>,
     pub size: Size2i,
-    time_since_regenerate: f32
+    time_since_regenerate: f32,
 }
 
 impl PlantGrid {
@@ -19,7 +19,7 @@ impl PlantGrid {
         PlantGrid {
             densities: vec![0u8; size.w as usize * size.h as usize],
             size,
-            time_since_regenerate: 0.0
+            time_since_regenerate: 0.0,
         }
     }
 
@@ -47,7 +47,9 @@ impl PlantGrid {
             for col in 0..self.size.w {
                 let random_value = rng.gen::<f32>();
                 if random_value > GENERATE_DENSITY_THRESHOLD {
-                    let new_density = (((random_value - GENERATE_DENSITY_THRESHOLD) / (1.0 - GENERATE_DENSITY_THRESHOLD)) * 255.0) as u8;
+                    let new_density = (((random_value - GENERATE_DENSITY_THRESHOLD)
+                        / (1.0 - GENERATE_DENSITY_THRESHOLD))
+                        * 255.0) as u8;
                     self.set_density(Vec2i::new(row as i32, col as i32), new_density);
                 }
             }
@@ -70,14 +72,22 @@ impl PlantGrid {
         for row in 0..self.size.h {
             for col in 0..self.size.w {
                 let mut neighbor_total = 0.0f32;
-                neighbor_total += self.get_density(Vec2i::new(col as i32 + 1, row as i32 + 0)) as f32;
-                neighbor_total += self.get_density(Vec2i::new(col as i32 + 1, row as i32 + 1)) as f32;
-                neighbor_total += self.get_density(Vec2i::new(col as i32 + 0, row as i32 + 1)) as f32;
-                neighbor_total += self.get_density(Vec2i::new(col as i32 - 1, row as i32 + 1)) as f32;
-                neighbor_total += self.get_density(Vec2i::new(col as i32 - 1, row as i32 + 0)) as f32;
-                neighbor_total += self.get_density(Vec2i::new(col as i32 - 1, row as i32 - 1)) as f32;
-                neighbor_total += self.get_density(Vec2i::new(col as i32 + 0, row as i32 - 1)) as f32;
-                neighbor_total += self.get_density(Vec2i::new(col as i32 + 1, row as i32 - 1)) as f32;
+                neighbor_total +=
+                    self.get_density(Vec2i::new(col as i32 + 1, row as i32 + 0)) as f32;
+                neighbor_total +=
+                    self.get_density(Vec2i::new(col as i32 + 1, row as i32 + 1)) as f32;
+                neighbor_total +=
+                    self.get_density(Vec2i::new(col as i32 + 0, row as i32 + 1)) as f32;
+                neighbor_total +=
+                    self.get_density(Vec2i::new(col as i32 - 1, row as i32 + 1)) as f32;
+                neighbor_total +=
+                    self.get_density(Vec2i::new(col as i32 - 1, row as i32 + 0)) as f32;
+                neighbor_total +=
+                    self.get_density(Vec2i::new(col as i32 - 1, row as i32 - 1)) as f32;
+                neighbor_total +=
+                    self.get_density(Vec2i::new(col as i32 + 0, row as i32 - 1)) as f32;
+                neighbor_total +=
+                    self.get_density(Vec2i::new(col as i32 + 1, row as i32 - 1)) as f32;
 
                 let pos = Vec2i::new(col as i32, row as i32);
                 if neighbor_total > REGENERATE_NEIGHBOR_THRESHOLD {

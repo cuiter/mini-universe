@@ -1,17 +1,12 @@
-use crate::util::{WRng, Vec2f, Vec3f, Rect2f, vec2f_to_vec2i, calculate_vec2f};
-use crate::world::plant_grid::PlantGrid;
-use crate::world::agent::brain::{Brain, N_PERCEPTS, N_COMMANDS};
+use crate::util::{calculate_vec2f, vec2f_to_vec2i, Rect2f, Vec2f, WRng};
+use crate::world::agent::brain::{Brain, N_COMMANDS, N_PERCEPTS};
 use crate::world::agent::genes::Genes;
 use crate::world::params::Params;
-use vek::ops::Clamp;
+use crate::world::plant_grid::PlantGrid;
 use rand::Rng;
+use vek::ops::Clamp;
 
-const MEASURE_DISTANCE: f32 = 8.0;
-const MEASURE_ANGLE: f32 = 0.35;
 const MOUTH_DISTANCE: f32 = 2.0;
-
-const PERCEPT_LEFT_EYE: usize = 1;
-const PERCEPT_RIGHT_EYE: usize = 2;
 
 const ENERGY_LOSE_SPEED: f32 = 0.02;
 const ENERGY_EAT_GAIN: f32 = 0.1;
@@ -37,16 +32,19 @@ pub struct TickResult {
 }
 
 struct Sensors {
-    pub percepts: [f32; N_PERCEPTS] // 0: constant one, 1: left eye, 2: right eye, 3: time (sinusoid)
+    pub percepts: [f32; N_PERCEPTS], // 0: constant one, 1: left eye, 2: right eye, 3: time (sinusoid)
 }
 
 struct Actuators {
-    pub commands: [f32; N_COMMANDS] // 0: left speed, 1: right speed
+    pub commands: [f32; N_COMMANDS], // 0: left speed, 1: right speed
 }
 
 impl Agent {
     pub fn new_random(params: &Params, rng: &mut WRng) -> Agent {
-        let pos = Vec2f::new(rng.gen::<f32>() * params.plant_grid_size.w as f32, rng.gen::<f32>() * params.plant_grid_size.h as f32);
+        let pos = Vec2f::new(
+            rng.gen::<f32>() * params.plant_grid_size.w as f32,
+            rng.gen::<f32>() * params.plant_grid_size.h as f32,
+        );
         let angle = rng.gen::<f32>() * std::f32::consts::PI * 2.0;
         Agent {
             genes: Genes::new_random(rng),
@@ -70,7 +68,7 @@ impl Agent {
             generation: self.generation + 1,
             time_alive: 0.0,
             time_since_reproduce: 0.0,
-            brain: self.brain.reproduce(mutation_factor, rng)
+            brain: self.brain.reproduce(mutation_factor, rng),
         }
     }
 
@@ -81,10 +79,18 @@ impl Agent {
     }
 
     pub fn get_left_measure_pos(&self) -> Vec2f {
-        self.pos + calculate_vec2f(self.genes.get_eye_distance(), self.angle - self.genes.get_eye_angle())
+        self.pos
+            + calculate_vec2f(
+                self.genes.get_eye_distance(),
+                self.angle - self.genes.get_eye_angle(),
+            )
     }
     pub fn get_right_measure_pos(&self) -> Vec2f {
-        self.pos + calculate_vec2f(self.genes.get_eye_distance(), self.angle + self.genes.get_eye_angle())
+        self.pos
+            + calculate_vec2f(
+                self.genes.get_eye_distance(),
+                self.angle + self.genes.get_eye_angle(),
+            )
     }
     pub fn get_mouth_pos(&self) -> Vec2f {
         self.pos + calculate_vec2f(MOUTH_DISTANCE, self.angle)
@@ -99,14 +105,15 @@ impl Agent {
                 1.0,
                 left_density as f32 / 255.0,
                 right_density as f32 / 255.0,
-                ((self.time_alive / self.genes.get_timer_interval()) * std::f32::consts::PI * 2.0).sin()
-            ]
+                ((self.time_alive / self.genes.get_timer_interval()) * std::f32::consts::PI * 2.0)
+                    .sin(),
+            ],
         }
     }
 
     fn calculate_actuators(&self, sensors: &Sensors) -> Actuators {
         Actuators {
-            commands: self.brain.run(sensors.percepts)
+            commands: self.brain.run(sensors.percepts),
         }
     }
 
@@ -163,4 +170,3 @@ impl Agent {
         }
     }
 }
-

@@ -1,11 +1,11 @@
 pub mod agent;
-pub mod plant_grid;
 pub mod params;
-pub mod world;
+pub mod plant_grid;
 pub mod time_controller;
+pub mod world;
 
-pub use params::Params;
-pub use world::World;
-pub use plant_grid::PlantGrid;
 pub use agent::Agent;
+pub use params::Params;
+pub use plant_grid::PlantGrid;
 pub use time_controller::TimeController;
+pub use world::World;

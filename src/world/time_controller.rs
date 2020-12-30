@@ -1,7 +1,7 @@
-use crate::world::{World, Params};
+use crate::world::{Params, World};
 
 pub struct TimeController {
-    time_left: f32
+    time_left: f32,
 }
 
 impl TimeController {

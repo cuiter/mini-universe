@@ -1,4 +1,4 @@
-use crate::util::{Size2i};
+use crate::util::Size2i;
 
 pub struct Params {
     pub seed: Option<u64>,

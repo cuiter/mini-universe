@@ -1,6 +1,6 @@
-use crate::util::{WRng, Vec3f};
-use vek::ops::Lerp;
+use crate::util::{Vec3f, WRng};
 use rand::Rng;
+use vek::ops::Lerp;
 
 const N_GENES: usize = 9;
 
@@ -27,7 +27,7 @@ const MIN_TIMER_INTERVAL: f32 = 1.0;
 const MAX_TIMER_INTERVAL: f32 = 50.0;
 
 pub struct Genes {
-    genes: [f32; N_GENES]
+    genes: [f32; N_GENES],
 }
 
 impl Genes {
@@ -38,9 +38,7 @@ impl Genes {
             genes[i] = rng.gen::<f32>();
         }
 
-        Genes {
-            genes
-        }
+        Genes { genes }
     }
 
     pub fn get_mutation_factor(&self) -> f32 {
@@ -62,13 +60,21 @@ impl Genes {
         Lerp::lerp(MIN_SPEED, MAX_SPEED, self.genes[GENE_SPEED])
     }
     pub fn get_eye_distance(&self) -> f32 {
-        Lerp::lerp(MIN_EYE_DISTANCE, MAX_EYE_DISTANCE, self.genes[GENE_EYE_DISTANCE])
+        Lerp::lerp(
+            MIN_EYE_DISTANCE,
+            MAX_EYE_DISTANCE,
+            self.genes[GENE_EYE_DISTANCE],
+        )
     }
     pub fn get_eye_angle(&self) -> f32 {
         Lerp::lerp(MIN_EYE_ANGLE, MAX_EYE_ANGLE, self.genes[GENE_EYE_ANGLE])
     }
     pub fn get_timer_interval(&self) -> f32 {
-        Lerp::lerp(MIN_TIMER_INTERVAL, MAX_TIMER_INTERVAL, self.genes[GENE_TIMER_INTERVAL])
+        Lerp::lerp(
+            MIN_TIMER_INTERVAL,
+            MAX_TIMER_INTERVAL,
+            self.genes[GENE_TIMER_INTERVAL],
+        )
     }
 
     pub fn reproduce(&self, rng: &mut WRng) -> Genes {
@@ -77,8 +83,6 @@ impl Genes {
             new_genes[i] += (rng.gen::<f32>() * 2.0 - 1.0) * self.get_mutation_factor();
         }
 
-        Genes {
-            genes: new_genes
-        }
+        Genes { genes: new_genes }
     }
 }

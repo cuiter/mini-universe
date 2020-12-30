@@ -1,10 +1,10 @@
-use sdl2::event::{Event,WindowEvent};
-use sdl2::keyboard::Scancode;
-use crate::util::{Size2i, Vec2f};
-use crate::gfx::view::View;
-use crate::world::{TimeController, World, Params};
-use crate::gfx::world::draw_world;
 use crate::gfx::assets::Assets;
+use crate::gfx::view::View;
+use crate::gfx::world::draw_world;
+use crate::util::{Size2i, Vec2f};
+use crate::world::{Params, TimeController, World};
+use sdl2::event::{Event, WindowEvent};
+use sdl2::keyboard::Scancode;
 use vek::ops::Clamp;
 
 const ENABLE_VSYNC: bool = true;
@@ -13,8 +13,13 @@ const WINDOW_SIZE: Size2i = Size2i::new(800, 600);
 pub fn main_loop(params: &Params) {
     let mut world = World::new(params);
     let mut time_controller = TimeController::new();
-    let mut view = View::new(WINDOW_SIZE, Vec2f::new(params.plant_grid_size.w as f32 / 2.0,
-                                                     params.plant_grid_size.h as f32 / 2.0));
+    let mut view = View::new(
+        WINDOW_SIZE,
+        Vec2f::new(
+            params.plant_grid_size.w as f32 / 2.0,
+            params.plant_grid_size.h as f32 / 2.0,
+        ),
+    );
 
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
@@ -22,7 +27,8 @@ pub fn main_loop(params: &Params) {
         .window("Universe Simulation", WINDOW_SIZE.w, WINDOW_SIZE.h)
         .position_centered()
         .resizable()
-        .build().unwrap();
+        .build()
+        .unwrap();
 
     let mut canvas;
     {
@@ -42,18 +48,21 @@ pub fn main_loop(params: &Params) {
     'event_loop: loop {
         for event in event_pump.poll_iter() {
             match event {
-                Event::Quit {..} => { break 'event_loop; },
-
-                Event::Window {win_event, ..} => {
-                    match win_event {
-                        WindowEvent::SizeChanged(width, height) => {
-                            view.window_size = Size2i::new(width as u32, height as u32);
-                        },
-                        _ => { },
-                    }
+                Event::Quit { .. } => {
+                    break 'event_loop;
                 }
 
-                Event::KeyDown {scancode: Some(scancode), ..} => {
+                Event::Window { win_event, .. } => match win_event {
+                    WindowEvent::SizeChanged(width, height) => {
+                        view.window_size = Size2i::new(width as u32, height as u32);
+                    }
+                    _ => {}
+                },
+
+                Event::KeyDown {
+                    scancode: Some(scancode),
+                    ..
+                } => {
                     if scancode == Scancode::R {
                         world = World::new(&params);
                     } else if scancode == Scancode::T {
@@ -64,7 +73,7 @@ pub fn main_loop(params: &Params) {
                         match line.parse::<f32>() {
                             Ok(new_time) => {
                                 time_controller.goto(params, &mut world, new_time);
-                            },
+                            }
                             Err(..) => {
                                 println!("{} is not a valid time", line);
                             }
@@ -72,17 +81,20 @@ pub fn main_loop(params: &Params) {
                     } else {
                         view.key_down(scancode);
                     }
-                },
+                }
 
-                Event::KeyUp {scancode: Some(scancode), ..} => {
+                Event::KeyUp {
+                    scancode: Some(scancode),
+                    ..
+                } => {
                     view.key_up(scancode);
-                },
+                }
 
-                Event::MouseWheel {y, ..} => {
+                Event::MouseWheel { y, .. } => {
                     view.change_zoom(y as f32);
                 }
 
-                _ => {},
+                _ => {}
             }
         }
 

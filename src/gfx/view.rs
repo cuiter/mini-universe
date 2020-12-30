@@ -1,6 +1,6 @@
 use crate::util::{Size2i, Vec2f};
-use std::collections::HashMap;
 use sdl2::keyboard::Scancode;
+use std::collections::HashMap;
 
 const POS_MOVE_FACTOR: f32 = 500.0; // Pixels per second
 const DEFAULT_ZOOM: f32 = 20.0;
@@ -44,16 +44,16 @@ impl View {
         match key {
             Scancode::Space => {
                 self.paused = !self.paused;
-            },
+            }
             Scancode::Comma => {
                 self.time_factor /= TIME_FACTOR_CHANGE_FACTOR;
                 println!("time factor: {}", self.time_factor);
-            },
+            }
             Scancode::Period => {
                 self.time_factor *= TIME_FACTOR_CHANGE_FACTOR;
                 println!("time factor: {}", self.time_factor);
-            },
-            _ => { }
+            }
+            _ => {}
         }
     }
 

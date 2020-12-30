@@ -1,4 +1,4 @@
-pub mod window;
-mod view;
-mod world;
 mod assets;
+mod view;
+pub mod window;
+mod world;

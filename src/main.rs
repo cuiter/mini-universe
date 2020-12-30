@@ -1,11 +1,11 @@
 pub mod gfx;
-pub mod world;
 pub mod util;
+pub mod world;
 
 use gfx::window::main_loop;
-use world::Params;
-use util::{Size2i};
 use std::env;
+use util::Size2i;
+use world::Params;
 
 fn main() {
     let args: Vec<_> = env::args().collect();

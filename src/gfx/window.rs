@@ -2,17 +2,17 @@ use sdl2::event::{Event,WindowEvent};
 use sdl2::keyboard::Scancode;
 use crate::util::{Size2i, Vec2f};
 use crate::gfx::view::View;
-use crate::world::{World, Params};
+use crate::world::{TimeController, World, Params};
 use crate::gfx::world::draw_world;
 use crate::gfx::assets::Assets;
 use vek::ops::Clamp;
 
 const ENABLE_VSYNC: bool = true;
 const WINDOW_SIZE: Size2i = Size2i::new(800, 600);
-const MAX_SIMULATED_INTERVAL: f32 = 0.1;
 
 pub fn main_loop(params: &Params) {
     let mut world = World::new(params);
+    let mut time_controller = TimeController::new();
     let mut view = View::new(WINDOW_SIZE, Vec2f::new(params.plant_grid_size.w as f32 / 2.0,
                                                      params.plant_grid_size.h as f32 / 2.0));
 
@@ -38,7 +38,6 @@ pub fn main_loop(params: &Params) {
     let mut assets = Assets::load(&mut texture_creator);
 
     let mut prev_nano_time = time::precise_time_ns();
-    let mut left_sim_time = 0.0;
 
     'event_loop: loop {
         for event in event_pump.poll_iter() {
@@ -57,6 +56,19 @@ pub fn main_loop(params: &Params) {
                 Event::KeyDown {scancode: Some(scancode), ..} => {
                     if scancode == Scancode::R {
                         world = World::new(&params);
+                    } else if scancode == Scancode::T {
+                        println!("enter new time:");
+                        let mut line = String::new();
+                        std::io::stdin().read_line(&mut line).unwrap();
+                        line = line.trim_end().to_string();
+                        match line.parse::<f32>() {
+                            Ok(new_time) => {
+                                time_controller.goto(params, &mut world, new_time);
+                            },
+                            Err(..) => {
+                                println!("{} is not a valid time", line);
+                            }
+                        }
                     } else {
                         view.key_down(scancode);
                     }
@@ -82,11 +94,7 @@ pub fn main_loop(params: &Params) {
         view.tick(d_time);
 
         if !view.paused {
-            left_sim_time += d_time * view.time_factor;
-            while left_sim_time > params.tick_interval {
-                world.tick(params, params.tick_interval);
-                left_sim_time -= params.tick_interval;
-            }
+            time_controller.tick(params, &mut world, d_time * view.time_factor);
         }
 
         draw_world(&mut canvas, &mut assets, &view, &world);

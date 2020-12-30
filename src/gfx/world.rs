@@ -66,8 +66,8 @@ pub fn draw_world(canvas: &mut Canvas<Window>, assets: &mut Assets, view: &View,
     // Draw agents.
     canvas.set_draw_color(AGENT_MEASURE_COLOR);
     for agent in world.agents.iter() {
-        let agent_color = Color::RGBA((agent.color.x * 255.0) as u8, (agent.color.y * 255.0) as u8, (agent.color.z * 255.0) as u8, 255);
-        assets.agent_sprite.set_color_mod(agent_color.r, agent_color.g, agent_color.b);
+        let agent_color = agent.genes.get_color();
+        assets.agent_sprite.set_color_mod((agent_color.x * 255.0) as u8, (agent_color.y * 255.0) as u8, (agent_color.z * 255.0) as u8);
         let draw_rect = world_to_window_rect(view, agent.get_bounding_rect());
         if !rect2i_collides(draw_rect, window_rect) {
             // Agent is not on screen.

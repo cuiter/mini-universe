@@ -1,7 +1,6 @@
 pub mod agent;
 pub mod plant_grid;
 pub mod params;
-mod brain;
 
 pub use params::Params;
 
@@ -14,6 +13,7 @@ pub struct World {
     pub plant_grid: plant_grid::PlantGrid,
     rng: WRng,
     max_time_alive: f32,
+    max_generation: u32,
 }
 
 impl World {
@@ -40,7 +40,8 @@ impl World {
             agents: agents,
             plant_grid,
             rng,
-            max_time_alive: 0.0
+            max_time_alive: 0.0,
+            max_generation: 1
         }
     }
 
@@ -58,8 +59,12 @@ impl World {
             if params.evolution {
                 if tick_result.die {
                     if agent.time_alive > self.max_time_alive {
-                        println!("new time alive record: {}", agent.time_alive);
                         self.max_time_alive = agent.time_alive;
+                        println!("new time alive record: {}", self.max_time_alive);
+                    }
+                    if agent.generation > self.max_generation {
+                        self.max_generation = agent.generation;
+                        println!("new generation record: {}", self.max_generation);
                     }
 
                     self.agents.remove(idx);

@@ -4,7 +4,6 @@ use vek::ops::Clamp;
 
 pub const N_PERCEPTS: usize = 4;
 pub const N_COMMANDS: usize = 2;
-const MUTATION_FACTOR: f32 = 0.02;
 
 pub struct Brain {
     weights: [f32; N_PERCEPTS * N_COMMANDS]
@@ -29,12 +28,12 @@ impl Brain {
         }
     }
 
-    pub fn reproduce(&self, rng: &mut WRng) -> Brain {
+    pub fn reproduce(&self, mutation_factor: f32, rng: &mut WRng) -> Brain {
         let mut new_weights = self.weights.clone();
         for row in 0..N_PERCEPTS {
             for col in 0..N_COMMANDS {
                 let weight = new_weights[row * N_COMMANDS + col];
-                let new_weight = weight + (rng.gen::<f32>() * 2.0 - 1.0) * MUTATION_FACTOR;
+                let new_weight = weight + (rng.gen::<f32>() * 2.0 - 1.0) * mutation_factor;
                 let clamped_new_weight = if row == 0 { new_weight.clamped(0.0, 1.0) } else { new_weight.clamped(-1.0, 1.0) };
                 new_weights[row * N_COMMANDS + col] = clamped_new_weight;
             }

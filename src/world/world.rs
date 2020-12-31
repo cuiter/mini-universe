@@ -1,8 +1,10 @@
-use crate::util::{vec2f_to_vec2i, WRng};
+use crate::util::{time_ns, vec2f_to_vec2i, WRng};
 use crate::world::{Agent, Params, PlantGrid};
 use rand::SeedableRng;
-use std::time::{SystemTime, UNIX_EPOCH};
 
+/// A universe in which everything resides.
+/// Contains a plant grid and a number of agents.
+/// Keeps track of the current (simulation) time and various agent records.
 pub struct World {
     pub agents: Vec<Agent>,
     pub plant_grid: PlantGrid,
@@ -13,14 +15,14 @@ pub struct World {
 }
 
 impl World {
+    /// Generate a new world with the specified parameters.
+    /// If a seed is given, the same parameters will always yield the same result.
+    /// If no seed is given, one will be generated.
     pub fn new(params: &Params) -> World {
         let mut rng = match params.seed {
             Some(seed) => WRng::seed_from_u64(seed),
             None => {
-                let time_since_epoch = SystemTime::now()
-                    .duration_since(UNIX_EPOCH)
-                    .expect("Time went backwards");
-                let seed = time_since_epoch.as_millis() as u64;
+                let seed = time_ns() as u64 % 10_000_000;
                 println!("using seed: {}", seed);
                 WRng::seed_from_u64(seed)
             }
@@ -42,6 +44,7 @@ impl World {
         }
     }
 
+    /// Run the world for the specified amount of time.
     pub fn tick(&mut self, params: &Params, d_time: f32) {
         self.plant_grid.tick(d_time, &mut self.rng);
 
@@ -60,14 +63,16 @@ impl World {
                         self.max_time_alive = agent.time_alive;
                         println!(
                             "[{}] new time alive record: {}",
-                            self.time.floor(), self.max_time_alive
+                            self.time.floor(),
+                            self.max_time_alive
                         );
                     }
                     if agent.generation > self.max_generation {
                         self.max_generation = agent.generation;
                         println!(
                             "[{}] new generation record: {}",
-                            self.time.floor(), self.max_generation
+                            self.time.floor(),
+                            self.max_generation
                         );
                     }
 

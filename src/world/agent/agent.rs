@@ -14,6 +14,7 @@ const ENERGY_EAT_GAIN: f32 = 0.1;
 const REPRODUCE_INTERVAL: f32 = 100.0;
 const REPRODUCE_ENERGY_COST: f32 = 0.5;
 
+/// A living creature with genes and a brain.
 pub struct Agent {
     pub genes: Genes,
     pub pos: Vec2f,
@@ -40,6 +41,7 @@ struct Actuators {
 }
 
 impl Agent {
+    /// Generates a random agent.
     pub fn new_random(params: &Params, rng: &mut WRng) -> Agent {
         let pos = Vec2f::new(
             rng.gen::<f32>() * params.plant_grid_size.w as f32,
@@ -58,6 +60,7 @@ impl Agent {
         }
     }
 
+    /// Reproduces the agent asexually, mutating according to the mutation factor.
     pub fn reproduce(&self, rng: &mut WRng) -> Agent {
         let mutation_factor = self.genes.get_mutation_factor();
         Agent {
@@ -96,6 +99,7 @@ impl Agent {
         self.pos + calculate_vec2f(MOUTH_DISTANCE, self.angle)
     }
 
+    /// Measures the surrounding world using the sensors.
     fn measure_sensors(&self, plant_grid: &PlantGrid) -> Sensors {
         let left_density = plant_grid.get_density(vec2f_to_vec2i(self.get_left_measure_pos()));
         let right_density = plant_grid.get_density(vec2f_to_vec2i(self.get_right_measure_pos()));
@@ -111,6 +115,7 @@ impl Agent {
         }
     }
 
+    /// Based on the sensor data, calculates the commands for the actuators.
     fn calculate_actuators(&self, sensors: &Sensors) -> Actuators {
         Actuators {
             commands: self.brain.run(sensors.percepts),
@@ -119,7 +124,12 @@ impl Agent {
 
     /// Applies the commands to the actuators, i.e. makes the agent move based on the brain output.
     /// Returns whether the agent moved forward.
-    fn apply_actuators(&mut self, actuators: &Actuators, plant_grid: &PlantGrid, d_time: f32) -> bool {
+    fn apply_actuators(
+        &mut self,
+        actuators: &Actuators,
+        plant_grid: &PlantGrid,
+        d_time: f32,
+    ) -> bool {
         let max_speed = self.genes.get_speed();
         let left_speed = (actuators.commands[0] - 0.5) * max_speed;
         let right_speed = (actuators.commands[1] - 0.5) * max_speed;
@@ -144,6 +154,8 @@ impl Agent {
         speed > 0.0
     }
 
+    /// Updates the agent for the specified amount of time.
+    /// Returns whether the agent should eat, die and/or reproduce.
     pub fn tick(&mut self, plant_grid: &PlantGrid, d_time: f32) -> TickResult {
         let sensors = self.measure_sensors(plant_grid);
         let actuators = self.calculate_actuators(&sensors);

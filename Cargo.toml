@@ -1,11 +1,10 @@
 [package]
-name = "universe"
+name = "mini-universe"
 version = "0.1.0"
 authors = ["cuiter <casper.uiterwijk@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-time = "0.1"
 rand = "0.7"
 rand_pcg = "0.2"
 vek = "0.12"

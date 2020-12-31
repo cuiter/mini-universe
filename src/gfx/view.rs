@@ -8,23 +8,26 @@ const ZOOM_CHANGE_FACTOR: f32 = 1.2; // Exponential
 const TIME_FACTOR_CHANGE_FACTOR: f32 = 2.0; // Exponential
 
 #[derive(Clone)]
+/// A projection into the world.
+/// Also keeps track of the paused state, time factor, window size and pressed keys.
 pub struct View {
-    pub window_size: Size2i,
     pub pos: Vec2f,
     pub zoom: f32,
     pub time_factor: f32,
     pub paused: bool,
+    pub window_size: Size2i,
     keys: HashMap<Scancode, bool>,
 }
 
 impl View {
+    /// Creates a new view with the specified window size and position.
     pub fn new(window_size: Size2i, pos: Vec2f) -> View {
         View {
-            window_size,
             pos,
             zoom: DEFAULT_ZOOM, // Pixels per plant cell
             paused: false,
             time_factor: 1.0,
+            window_size,
             keys: HashMap::new(),
         }
     }
@@ -37,6 +40,7 @@ impl View {
         self.zoom *= ZOOM_CHANGE_FACTOR.powf(scroll);
     }
 
+    /// Handles a "key down" event and modifies the view if necessary.
     pub fn key_down(&mut self, key: Scancode) {
         self.keys.insert(key, true);
 
@@ -57,14 +61,17 @@ impl View {
         }
     }
 
+    /// Handles a "key up" event.
     pub fn key_up(&mut self, key: Scancode) {
         self.keys.insert(key, false);
     }
 
+    /// Returns whether a key is pressed.
     fn get_key(&self, key: Scancode) -> bool {
         *self.keys.get(&key).unwrap_or(&false)
     }
 
+    /// Updates the view position.
     pub fn tick(&mut self, d_time: f32) {
         // Move view position based on keyboard input.
         let mut pos_diff = Vec2f::new(0.0, 0.0);

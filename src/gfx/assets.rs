@@ -7,12 +7,16 @@ use std::path::PathBuf;
 const AGENT_SPRITE_PATH: &str = "assets/agent.png";
 const AGENT_EYES_SPRITE_PATH: &str = "assets/agent_eyes.png";
 
+/// Struct for keeping track of SDL2 assets.
 pub struct Assets<'a> {
     pub agent_sprite: Texture<'a>,
     pub agent_eyes_sprite: Texture<'a>,
 }
 
 impl<'a> Assets<'a> {
+    /// Load assets from disk.
+    /// NOTE: The executable must be three layers deeper than the "assets" directory,
+    ///       for example ./target/debug/mini-universe next to ./assets.
     pub fn load(creator: &'a mut TextureCreator<WindowContext>) -> Assets<'a> {
         let assets_dir_pathbuf = PathBuf::from(
             get_executable_path()

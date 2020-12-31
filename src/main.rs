@@ -4,7 +4,6 @@ pub mod world;
 
 use gfx::window::main_loop;
 use std::env;
-use util::Size2i;
 use world::Params;
 
 fn main() {
@@ -15,8 +14,6 @@ fn main() {
     } else {
         params.seed = None;
     }
-    params.plant_grid_size = Size2i::new(200, 200);
-    params.tick_interval = 0.04;
-    params.agent_count = 5;
+
     main_loop(&params);
 }

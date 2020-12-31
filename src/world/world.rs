@@ -6,7 +6,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 pub struct World {
     pub agents: Vec<Agent>,
     pub plant_grid: PlantGrid,
-    pub time: f32,
+    pub time: f64, // 64-bit required for precision after ~1 million seconds.
     rng: WRng,
     max_time_alive: f32,
     max_generation: u32,
@@ -59,15 +59,15 @@ impl World {
                     if agent.time_alive > self.max_time_alive {
                         self.max_time_alive = agent.time_alive;
                         println!(
-                            "[{:.0}] new time alive record: {}",
-                            self.time, self.max_time_alive
+                            "[{}] new time alive record: {}",
+                            self.time.floor(), self.max_time_alive
                         );
                     }
                     if agent.generation > self.max_generation {
                         self.max_generation = agent.generation;
                         println!(
-                            "[{:.0}] new generation record: {}",
-                            self.time, self.max_generation
+                            "[{}] new generation record: {}",
+                            self.time.floor(), self.max_generation
                         );
                     }
 
@@ -86,6 +86,6 @@ impl World {
             idx += 1;
         }
 
-        self.time += d_time;
+        self.time += d_time as f64;
     }
 }

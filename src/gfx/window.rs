@@ -70,7 +70,7 @@ pub fn main_loop(params: &Params) {
                         let mut line = String::new();
                         std::io::stdin().read_line(&mut line).unwrap();
                         line = line.trim_end().to_string();
-                        match line.parse::<f32>() {
+                        match line.parse::<f64>() {
                             Ok(new_time) => {
                                 time_controller.goto(params, &mut world, new_time);
                             }

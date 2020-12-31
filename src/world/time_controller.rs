@@ -17,7 +17,7 @@ impl TimeController {
         }
     }
 
-    pub fn goto(&mut self, params: &Params, world: &mut World, new_time: f32) {
+    pub fn goto(&mut self, params: &Params, world: &mut World, new_time: f64) {
         if new_time < world.time {
             *world = World::new(params);
         }

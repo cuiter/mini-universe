@@ -26,11 +26,14 @@ const MAX_EYE_ANGLE: f32 = 0.5;
 const MIN_TIMER_INTERVAL: f32 = 1.0;
 const MAX_TIMER_INTERVAL: f32 = 50.0;
 
+/// Struct that keeps track of an agent's genes.
+/// Has methods for determining agent attributes.
 pub struct Genes {
     genes: [f32; N_GENES],
 }
 
 impl Genes {
+    /// Generates random genes.
     pub fn new_random(rng: &mut WRng) -> Genes {
         let mut genes = [0.0; N_GENES];
 
@@ -39,6 +42,16 @@ impl Genes {
         }
 
         Genes { genes }
+    }
+
+    /// Reproduces the genes asexually, mutating according to the mutation factor.
+    pub fn reproduce(&self, rng: &mut WRng) -> Genes {
+        let mut new_genes = self.genes.clone();
+        for i in 0..N_GENES {
+            new_genes[i] += (rng.gen::<f32>() * 2.0 - 1.0) * self.get_mutation_factor();
+        }
+
+        Genes { genes: new_genes }
     }
 
     pub fn get_mutation_factor(&self) -> f32 {
@@ -75,14 +88,5 @@ impl Genes {
             MAX_TIMER_INTERVAL,
             self.genes[GENE_TIMER_INTERVAL],
         )
-    }
-
-    pub fn reproduce(&self, rng: &mut WRng) -> Genes {
-        let mut new_genes = self.genes.clone();
-        for i in 0..N_GENES {
-            new_genes[i] += (rng.gen::<f32>() * 2.0 - 1.0) * self.get_mutation_factor();
-        }
-
-        Genes { genes: new_genes }
     }
 }

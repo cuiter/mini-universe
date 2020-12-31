@@ -14,6 +14,7 @@ const PLANT_COLOR: Color = Color::RGBA(96, 255, 32, 255);
 const AGENT_MEASURE_COLOR: Color = Color::RGBA(100, 100, 255, 200);
 const AGENT_MEASURE_SIZE: f32 = 0.25;
 
+/// Translate a position in the world to a position on the window.
 fn world_to_window_pos(view: &View, pos: Vec2f) -> Vec2f {
     let centered_pos = (pos - view.pos) * view.zoom;
 
@@ -24,6 +25,7 @@ fn world_to_window_pos(view: &View, pos: Vec2f) -> Vec2f {
     )
 }
 
+/// Translate a rectangle in the world to a rectangle on the window.
 fn world_to_window_rect(view: &View, rect: Rect2f) -> Rect2i {
     let bottom_left = vec2f_to_vec2i(world_to_window_pos(view, Vec2f::new(rect.x, rect.y)));
     let top_right = vec2f_to_vec2i(world_to_window_pos(
@@ -39,6 +41,7 @@ fn world_to_window_rect(view: &View, rect: Rect2f) -> Rect2i {
     )
 }
 
+/// Draw the world.
 pub fn draw_world(canvas: &mut Canvas<Window>, assets: &mut Assets, view: &View, world: &World) {
     canvas.set_draw_color(BACKGROUND_COLOR);
     canvas.clear();

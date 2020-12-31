@@ -117,7 +117,9 @@ impl Agent {
         }
     }
 
-    fn apply_actuators(&mut self, actuators: &Actuators, plant_grid: &PlantGrid, d_time: f32) {
+    /// Applies the commands to the actuators, i.e. makes the agent move based on the brain output.
+    /// Returns whether the agent moved forward.
+    fn apply_actuators(&mut self, actuators: &Actuators, plant_grid: &PlantGrid, d_time: f32) -> bool {
         let max_speed = self.genes.get_speed();
         let left_speed = (actuators.commands[0] - 0.5) * max_speed;
         let right_speed = (actuators.commands[1] - 0.5) * max_speed;
@@ -138,15 +140,17 @@ impl Agent {
         } else if self.pos.y > plant_grid.size.h as f32 {
             self.pos.y = 0.0;
         }
+
+        speed > 0.0
     }
 
     pub fn tick(&mut self, plant_grid: &PlantGrid, d_time: f32) -> TickResult {
         let sensors = self.measure_sensors(plant_grid);
         let actuators = self.calculate_actuators(&sensors);
-        self.apply_actuators(&actuators, plant_grid, d_time);
+        let moved_forward = self.apply_actuators(&actuators, plant_grid, d_time);
 
         let density_at_mouth = plant_grid.get_density(vec2f_to_vec2i(self.get_mouth_pos()));
-        let eat = density_at_mouth > 0;
+        let eat = moved_forward && density_at_mouth > 0;
 
         self.energy -= ENERGY_LOSE_SPEED * d_time;
         if eat {

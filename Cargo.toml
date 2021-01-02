@@ -9,6 +9,8 @@ rand = "0.7"
 rand_pcg = "0.2"
 vek = "0.12"
 process_path = "0.1"
+strum = "0.20"
+strum_macros = "0.20"
 
 [dependencies.sdl2]
 version = "0.34"

@@ -58,9 +58,9 @@ impl World {
     pub fn tick(&mut self, params: &Params, d_time: f32) {
         self.plant_grid.tick(d_time, &mut self.rng);
 
-        let mut idx = 0;
-        while idx < self.agents.len() {
-            let agent = &mut self.agents[idx];
+        let mut idx: i32 = 0;
+        while idx < self.agents.len() as i32 {
+            let agent = &mut self.agents[idx as usize];
             let tick_result = agent.tick(&self.plant_grid, d_time);
             if tick_result.eat {
                 self.plant_grid
@@ -86,7 +86,7 @@ impl World {
                         );
                     }
 
-                    self.agents.remove(idx);
+                    self.agents.remove(idx as usize);
                     idx -= 1;
 
                     if self.agents.len() < params.agent_count as usize {

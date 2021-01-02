@@ -25,7 +25,7 @@ impl TimeController {
         if new_time < world.time {
             // If the time is in the past,
             // create a new world and run the simulation again.
-            *world = World::new(params);
+            *world = World::new_seeded(params, world.seed);
         }
         while world.time < new_time {
             world.tick(params, params.tick_interval);

@@ -9,6 +9,7 @@ pub struct World {
     pub agents: Vec<Agent>,
     pub plant_grid: PlantGrid,
     pub time: f64, // 64-bit required for precision after ~1 million seconds.
+    pub seed: u64,
     rng: WRng,
     max_time_alive: f32,
     max_generation: u32,
@@ -19,14 +20,22 @@ impl World {
     /// If a seed is given, the same parameters will always yield the same result.
     /// If no seed is given, one will be generated.
     pub fn new(params: &Params) -> World {
-        let mut rng = match params.seed {
-            Some(seed) => WRng::seed_from_u64(seed),
+        let seed = match params.seed {
+            Some(seed) => seed,
             None => {
                 let seed = time_ns() as u64 % 10_000_000;
                 println!("using seed: {}", seed);
-                WRng::seed_from_u64(seed)
+                seed
             }
         };
+
+        World::new_seeded(params, seed)
+    }
+
+    /// Generate a new world with the specified parameters,
+    /// using the given seed instead of the one from `params`.
+    pub fn new_seeded(params: &Params, seed: u64) -> World {
+        let mut rng = WRng::seed_from_u64(seed);
 
         let mut plant_grid = PlantGrid::new(params.plant_grid_size);
         plant_grid.generate(&mut rng);
@@ -38,6 +47,7 @@ impl World {
             agents: agents,
             plant_grid,
             time: 0.0,
+            seed,
             rng,
             max_time_alive: 0.0,
             max_generation: 1,

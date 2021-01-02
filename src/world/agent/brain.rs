@@ -1,29 +1,45 @@
 use crate::util::WRng;
 use rand::Rng;
+use strum::EnumCount;
+use strum_macros::{AsRefStr, EnumCount as EnumCountMacro, EnumIter};
 use vek::ops::Clamp;
 
-pub const N_PERCEPTS: usize = 4;
-pub const N_COMMANDS: usize = 2;
+#[derive(Copy, Clone, PartialEq, EnumCountMacro, EnumIter, AsRefStr)]
+pub enum Percept {
+    ConstantOne = 0,
+    LeftEye = 1,
+    RightEye = 2,
+    TimeWave = 3,
+}
+
+#[derive(Copy, Clone, PartialEq, EnumCountMacro, EnumIter, AsRefStr)]
+pub enum Command {
+    LeftTrack = 0,
+    RightTrack = 1,
+}
+
+pub type Percepts = [f32; Percept::COUNT];
+pub type Commands = [f32; Command::COUNT];
 
 /// A brain calculates what commands to send to the actuators,
 /// based on the inputs from the sensors.
 /// Currently uses a simple single-layer feed-forward neural network.
 /// The activation function is an add (+) clamped to [0.0, 1.0].
 pub struct Brain {
-    weights: [f32; N_PERCEPTS * N_COMMANDS],
+    weights: [f32; Percept::COUNT * Command::COUNT],
 }
 
 impl Brain {
     /// Generates a random brain.
     pub fn new_random(rng: &mut WRng) -> Brain {
-        let mut weights = [0.0; N_PERCEPTS * N_COMMANDS];
+        let mut weights = [0.0; Percept::COUNT * Command::COUNT];
 
-        for row in 0..N_PERCEPTS {
-            for col in 0..N_COMMANDS {
+        for row in 0..Percept::COUNT {
+            for col in 0..Command::COUNT {
                 if row == 0 {
-                    weights[row * N_COMMANDS + col] = rng.gen::<f32>();
+                    weights[row * Command::COUNT + col] = rng.gen::<f32>();
                 } else {
-                    weights[row * N_COMMANDS + col] = rng.gen::<f32>() * 2.0 - 1.0;
+                    weights[row * Command::COUNT + col] = rng.gen::<f32>() * 2.0 - 1.0;
                 }
             }
         }
@@ -34,16 +50,16 @@ impl Brain {
     /// Reproduces the brain asexually, mutating according to the mutation factor.
     pub fn reproduce(&self, mutation_factor: f32, rng: &mut WRng) -> Brain {
         let mut new_weights = self.weights.clone();
-        for row in 0..N_PERCEPTS {
-            for col in 0..N_COMMANDS {
-                let weight = new_weights[row * N_COMMANDS + col];
+        for row in 0..Percept::COUNT {
+            for col in 0..Command::COUNT {
+                let weight = new_weights[row * Command::COUNT + col];
                 let new_weight = weight + (rng.gen::<f32>() * 2.0 - 1.0) * mutation_factor;
                 let clamped_new_weight = if row == 0 {
                     new_weight.clamped(0.0, 1.0)
                 } else {
                     new_weight.clamped(-1.0, 1.0)
                 };
-                new_weights[row * N_COMMANDS + col] = clamped_new_weight;
+                new_weights[row * Command::COUNT + col] = clamped_new_weight;
             }
         }
         Brain {
@@ -51,13 +67,14 @@ impl Brain {
         }
     }
 
-    /// Use the brain to calculate what commands to send to the actuators based on the given sensor inputs.
-    pub fn run(&self, percepts: [f32; N_PERCEPTS]) -> [f32; N_COMMANDS] {
-        let mut result = [0.0; N_COMMANDS];
+    /// Use the brain to calculate what commands to send to the actuators based on the given
+    /// percepts from the sensors.
+    pub fn run(&self, percepts: &Percepts) -> Commands {
+        let mut result = [0.0; Command::COUNT];
 
-        for row in 0..N_PERCEPTS {
-            for col in 0..N_COMMANDS {
-                result[col] += percepts[row] * self.weights[row * N_COMMANDS + col];
+        for row in 0..Percept::COUNT {
+            for col in 0..Command::COUNT {
+                result[col] += percepts[row] * self.weights[row * Command::COUNT + col];
             }
         }
 

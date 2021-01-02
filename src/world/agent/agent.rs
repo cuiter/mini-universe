@@ -5,7 +5,7 @@ use crate::world::params::Params;
 use crate::world::plant_grid::PlantGrid;
 use rand::Rng;
 use strum::EnumCount;
-use vek::ops::Clamp;
+use vek::ops::{Clamp, Lerp};
 
 const MOUTH_DISTANCE: f32 = 2.0;
 
@@ -14,6 +14,9 @@ const ENERGY_EAT_GAIN: f32 = 0.1;
 
 const REPRODUCE_INTERVAL: f32 = 100.0;
 const REPRODUCE_ENERGY_COST: f32 = 0.5;
+
+const INITIAL_SIZE_FACTOR: f32 = 0.2;
+const TIME_UNTIL_GROWN: f32 = 5.0;
 
 /// A living creature with genes and a brain.
 pub struct Agent {
@@ -59,7 +62,7 @@ impl Agent {
         Agent {
             genes: self.genes.reproduce(rng),
             pos: self.pos,
-            angle: -self.angle,
+            angle: std::f32::consts::PI + self.angle,
             energy: 1.0,
             generation: self.generation + 1,
             time_alive: 0.0,
@@ -68,9 +71,14 @@ impl Agent {
         }
     }
 
+    fn get_size(&self) -> f32 {
+        let max_size = self.genes.get_size();
+        Lerp::lerp(INITIAL_SIZE_FACTOR * max_size, max_size, self.time_alive / TIME_UNTIL_GROWN)
+    }
+
     #[inline]
     pub fn get_bounding_rect(&self) -> Rect2f {
-        let size = self.genes.get_size();
+        let size = self.get_size();
         Rect2f::new(self.pos.x - size / 2.0, self.pos.y - size / 2.0, size, size)
     }
 

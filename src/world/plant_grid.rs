@@ -7,7 +7,7 @@ const REGENERATE_INTERVAL: f32 = 10.0;
 const REGENERATE_NEIGHBOR_THRESHOLD: f32 = 100.0;
 const REGENERATE_INCREMENT_MAX: f32 = 3.0;
 
-const TARGET_DENSITY_PER_CELL: f32 = 5.0;
+const TARGET_DENSITY_PER_CELL: f32 = 8.0;
 
 #[derive(Clone)]
 pub struct PlantGrid {
@@ -78,10 +78,8 @@ impl PlantGrid {
     }
 
     fn regenerate(&mut self, rng: &mut WRng) {
-        let mut total_density: u64 = 0;
-        let mut first_iteration = true;
-        while total_density < self.get_target_total_density() {
-            total_density = 0;
+        let total_density: u64 = self.densities.iter().map(|x| *x as u64).sum();
+        if total_density < self.get_target_total_density() {
             // Don't let plants grow on the borders for performance reasons.
             for row in 1..self.size.h-1 {
                 for col in 1..self.size.w-1 {
@@ -104,7 +102,7 @@ impl PlantGrid {
                         self.get_density_unchecked(Vec2i::new(col as i32 + 1, row as i32 - 1)) as f32;
 
                     let pos = Vec2i::new(col as i32, row as i32);
-                    if !first_iteration && neighbor_total > REGENERATE_NEIGHBOR_THRESHOLD {
+                    if neighbor_total > REGENERATE_NEIGHBOR_THRESHOLD {
                         let mut new_density = self.get_density_unchecked(pos) as f32;
                         new_density += REGENERATE_INCREMENT_MAX * rng.gen::<f32>();
                         if new_density > 255.0 {
@@ -113,10 +111,8 @@ impl PlantGrid {
                         self.set_density(pos, new_density as u8);
                     }
 
-                    total_density += self.get_density_unchecked(pos) as u64;
                 }
             }
-            first_iteration = false;
         }
     }
 }

@@ -43,3 +43,11 @@ NixOS:
 | Space bar                | Pause / resume simulation               |
 | R                        | Restart simulation                       |
 | T                        | Time travel (enter time on command line) |
+
+# Video
+
+This short clip shows a relatively advanced species whose genes have survived
+for many generations. Because of its intelligence, this species will eventually
+exhaust the food supply and cease to exist.
+
+![](https://cuiter.me/ext/mini-universe.gif)

@@ -4,7 +4,7 @@ An experiment in simulation theory. This program simulates a virtual universe
 with plants and agents (creatures) that have to evolve to stay alive and
 produce offspring.
 
-![](https://cuiter.me/ext/mini-universe.png)
+![](./assets/readme/mini-universe.png)
 
 Each agent has a set of genes that determines their attributes such as their
 color, size and speed. Every agent also has a brain that determines how to
@@ -43,3 +43,11 @@ NixOS:
 | Space bar                | Pause / resume simulation               |
 | R                        | Restart simulation                       |
 | T                        | Time travel (enter time on command line) |
+
+# Video
+
+This short clip shows a relatively advanced species whose genes have survived
+for many generations. Because of its intelligence, this species will eventually
+exhaust the food supply and cease to exist.
+
+![](./assets/readme/mini-universe.gif)
